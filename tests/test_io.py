@@ -15,9 +15,9 @@ from wxpost.io import open_waccmx, pressure_on_levels
 
 @pytest.mark.needs_data
 def test_open_keeps_requested_variables(waccmx_path):
-    ds = open_waccmx(waccmx_path, variables=("T", "EDens"))
+    ds = open_waccmx(waccmx_path, variables=("T", "TElec"))
     assert "T" in ds
-    assert "EDens" in ds
+    assert "TElec" in ds
     # We always keep the hybrid coefficients for downstream coords.
     for coef in ("hyam", "hybm", "P0"):
         assert coef in ds

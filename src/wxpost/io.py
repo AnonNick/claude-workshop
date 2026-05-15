@@ -14,9 +14,9 @@ import xarray as xr
 # Default subset of variables that the workshop cares about.
 # (Files have ~360 variables; we don't want to materialise them all.)
 DEFAULT_VARS: tuple[str, ...] = (
-    "T", "U", "V", "OMEGA",      # neutral atmosphere
-    "PS", "Z3",                  # surface pressure, geopotential height
-    "EDens", "TElec", "TIon",    # ionosphere (WACCM-X)
+    "T", "U", "V", "OMEGA",   # neutral atmosphere
+    "PS", "Z3",               # surface pressure, geopotential height
+    "TElec", "TIon",          # ionosphere (WACCM-X)
 )
 
 HYBRID_COEFS: tuple[str, ...] = ("hyam", "hybm", "P0", "PS")
@@ -48,14 +48,6 @@ def open_waccmx(
     if ds["lev"].attrs.get("units", "").lower() == "hpa":
         ds = ds.assign_coords(lev=ds["lev"].values * 100.0)
         ds["lev"].attrs["units"] = "Pa"
-
-    # WACCM-X writes EDens with units = "cm^3" in the NetCDF header. That is
-    # an upstream typo — electron density is in cm^-3 (per cubic centimetre).
-    # The numerical values are correct; only the attribute string is wrong.
-    # We override it here so downstream plotting/labelling code sees the
-    # right unit.
-    if "EDens" in ds and ds["EDens"].attrs.get("units") == "cm^3":
-        ds["EDens"].attrs["units"] = "cm-3"
 
     return ds
 

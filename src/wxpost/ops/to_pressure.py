@@ -22,7 +22,7 @@ def to_pressure(
     ds
         WACCM-X dataset opened by :func:`wxpost.io.open_waccmx`.
     field
-        Name of the variable to interpolate (e.g. ``"T"``, ``"EDens"``).
+        Name of the variable to interpolate (e.g. ``"T"``, ``"TElec"``).
     pressures_pa
         Target pressure levels in Pa. 1-D, ascending or descending.
     method

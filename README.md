@@ -29,7 +29,7 @@ Tests reference one file on Derecho `campaign`:
 
 This is a WACCM-X FXSD monthly-mean h0 file for January 2020, on the f19
 grid (~1.9°×2.5°), 145 vertical levels. About 1.8 GB. We only read a few
-variables out of it (`T`, `U`, `V`, `Z3`, `PS`, `EDens`, `TElec`, plus the
+variables out of it (`T`, `U`, `V`, `Z3`, `PS`, `TElec`, `TIon`, plus the
 hybrid-sigma coefficients `hyam`, `hybm`, `P0`).
 
 Tests that touch this file are marked `needs_data`. Run only the ones that
