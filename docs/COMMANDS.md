@@ -94,37 +94,6 @@ $ claude                       # choose option 2, paste the key
 > /exit                        # leave Claude for now
 ```
 
-### 0.4 · Install Node + GitNexus globally
-
-Derecho ships Node already, but the default install path won't work
-because `npx -y` re-resolves on each launch and triggers an npm bug.
-Install once, globally:
-
-```bash
-$ mkdir -p ~/.npm-global
-$ npm config set prefix ~/.npm-global
-$ echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
-$ source ~/.bashrc
-
-$ npm install -g gitnexus
-$ which gitnexus               # → ~/.npm-global/bin/gitnexus
-$ gitnexus --version           # → 1.5.3 or higher
-```
-
-### 0.5 · Verify the libstdc++ override
-
-GitNexus's native add-on needs `GLIBCXX_3.4.32`, which Derecho's `node`
-binary can't find on its own. We point at the system miniforge env:
-
-```bash
-$ strings /glade/u/apps/opt/miniforge/envs/npl-2026a/lib/libstdc++.so.6 \
-    | grep -c GLIBCXX_3.4.32
-2
-```
-
-If you get `0`, see [SETUP-DERECHO.md](SETUP-DERECHO.md) for fallback
-paths.
-
 ---
 
 ## Phase 1 · Workshop · Warm-up (Exercise 0) · *slides W05, W05a, W06*
@@ -141,7 +110,7 @@ prompt. Every non-trivial request has four parts:
 | **CONSTRAINTS** | what not to change | "Keep the public API. No new deps." |
 | **VERIFICATION** | how we'll know it worked | "pytest must pass. Add a regression test." |
 
-Stitched into one prompt:
+Stitched into one prompt (Dont run yet):
 
 ```
 > Fix test_to_height_thermosphere_telec. The bug is in
@@ -269,7 +238,38 @@ $ cat ./CLAUDE.md
 
 ## Phase 4 · MCP + GitNexus (Exercise 2) · *slides W14–W22*
 
-### 4.1 · Index this repo with GitNexus · *slides W18, W20*
+### 4.1 · Install Node + GitNexus globally · *slides W17, W18*
+
+Derecho ships Node already, but the default install path won't work
+because `npx -y` re-resolves on each launch and triggers an npm bug.
+Install once, globally:
+
+```bash
+$ mkdir -p ~/.npm-global
+$ npm config set prefix ~/.npm-global
+$ echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
+$ source ~/.bashrc
+
+$ npm install -g gitnexus
+$ which gitnexus               # → ~/.npm-global/bin/gitnexus
+$ gitnexus --version           # → 1.5.3 or higher
+```
+
+### 4.2 · Verify the libstdc++ override · *slide W20*
+
+GitNexus's native add-on needs `GLIBCXX_3.4.32`, which Derecho's `node`
+binary can't find on its own. We point at the system miniforge env:
+
+```bash
+$ strings /glade/u/apps/opt/miniforge/envs/npl-2026a/lib/libstdc++.so.6 \
+    | grep -c GLIBCXX_3.4.32
+2
+```
+
+If you get `0`, see [SETUP-DERECHO.md](SETUP-DERECHO.md) for fallback
+paths.
+
+### 4.3 · Index this repo with GitNexus · *slides W18, W20*
 
 ```bash
 $ cd ~/claude-workshop
@@ -282,7 +282,7 @@ You should see "Walked N files / Parsed N symbols / Wrote .gitnexus/"
 followed by `.claude/skills/` being installed and `CLAUDE.md` being
 updated. The index lives in `./.gitnexus/`.
 
-### 4.2 · Register the GitNexus MCP server · *slides W17 (scopes), W20*
+### 4.4 · Register the GitNexus MCP server · *slides W17 (scopes), W20*
 
 ```bash
 $ claude mcp remove gitnexus -s user 2>/dev/null    # idempotent
@@ -294,9 +294,9 @@ $ claude mcp list
 ```
 
 Expect `gitnexus: … - ✓ Connected`. If you see `✗ Failed to connect`,
-re-check paths in step 0.4 and 0.5.
+re-check paths in steps 4.1 and 4.2.
 
-### 4.3 · Restart Claude so it picks up the new MCP
+### 4.5 · Restart Claude so it picks up the new MCP
 
 MCP tools are loaded at session startup, not live. Always restart after
 adding a server.
@@ -306,7 +306,7 @@ $ claude
 > /mcp                         # gitnexus should appear with ~7 tools
 ```
 
-### 4.4 · Try a GitNexus-powered question · *slide W21 (Ex 2)*
+### 4.6 · Try a GitNexus-powered question · *slide W21 (Ex 2)*
 
 ```
 > What depends on the function `interp_1d` in src/wxpost/interp/linear.py?
