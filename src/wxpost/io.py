@@ -49,6 +49,14 @@ def open_waccmx(
         ds = ds.assign_coords(lev=ds["lev"].values * 100.0)
         ds["lev"].attrs["units"] = "Pa"
 
+    # WACCM-X writes EDens with units = "cm^3" in the NetCDF header. That is
+    # an upstream typo — electron density is in cm^-3 (per cubic centimetre).
+    # The numerical values are correct; only the attribute string is wrong.
+    # We override it here so downstream plotting/labelling code sees the
+    # right unit.
+    if "EDens" in ds and ds["EDens"].attrs.get("units") == "cm^3":
+        ds["EDens"].attrs["units"] = "cm-3"
+
     return ds
 
 

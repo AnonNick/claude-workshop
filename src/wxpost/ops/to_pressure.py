@@ -13,7 +13,7 @@ def to_pressure(
     ds: xr.Dataset,
     field: str,
     pressures_pa: np.ndarray,
-    method: str = "linear",
+    method: str = "loglinear",
 ) -> xr.DataArray:
     """Interpolate ``ds[field]`` from model levels onto ``pressures_pa``.
 
@@ -27,9 +27,15 @@ def to_pressure(
         Target pressure levels in Pa. 1-D, ascending or descending.
     method
         Interpolation method. One of ``"linear"`` or ``"loglinear"``.
-        Defaults to ``"linear"`` because the WACCM-X levels we care about
-        for most diagnostics are in the troposphere/stratosphere, where
-        linear-in-pressure is a fine approximation.
+        Defaults to ``"loglinear"`` (linear-in-log-pressure) — the
+        standard convention for CAM-style hybrid-sigma output, matching
+        NCL's ``vinth2p``, MetPy, and geocat-comp. Pressure spans many
+        orders of magnitude vertically, so log-linear is correct on
+        physical grounds. ``"linear"`` is provided for parity with the
+        height-interpolation operator and for cases where the user
+        knows their target pressures fall within densely-spaced model
+        levels (e.g. WACCM-X with 145 levels at quarter-scale-height
+        spacing, where the two methods agree to <1%).
 
     Returns
     -------
