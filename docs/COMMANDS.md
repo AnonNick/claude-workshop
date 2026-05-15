@@ -52,6 +52,31 @@ $ pytest                      # full run — 10 passed, 2 failed (intentional)
 
 The two failing tests **are the exercises**. Don't fix them yet.
 
+The full-run pytest reads a WACCM-X NetCDF off `/glade/campaign`. The
+exact path:
+
+```
+/glade/campaign/hao/itmodel/joemci/archive/\
+  f.e22.FXSD.f19_f19_mg17.001/atm/hist/2020/\
+  f.e22.FXSD.f19_f19_mg17.001.cam.h0.2020-01.nc
+```
+
+A WACCM-X FXSD monthly-mean h0 file for January 2020 on the f19 grid
+(96 × 144, 145 levels, ~1.8 GB). Tests that need it are marked
+`needs_data` and skip automatically if you can't see the path. Quick
+inspection — try any of:
+
+```bash
+$ ls -lh /glade/campaign/hao/itmodel/joemci/archive/\
+    f.e22.FXSD.f19_f19_mg17.001/atm/hist/2020/ | head
+$ ncdump -h /glade/campaign/hao/itmodel/joemci/archive/\
+    f.e22.FXSD.f19_f19_mg17.001/atm/hist/2020/\
+    f.e22.FXSD.f19_f19_mg17.001.cam.h0.2020-01.nc | head -30
+```
+
+The path is also hard-coded into `tests/conftest.py` (fixture
+`waccmx_path`) and the example plot script — no env var needed.
+
 ### 0.3 · Install Claude Code
 
 ```bash
