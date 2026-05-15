@@ -19,13 +19,25 @@ Three command flavours appear here:
 Skip the whole phase if `claude --version` and `which gitnexus` already
 both print something on this host.
 
-### 0.1 · Get on Derecho with the right modules
+### 0.1 · Get on Derecho with a fresh conda env
 
 ```bash
 $ ssh derecho.hpc.ucar.edu
-$ module load conda           # Python 3.10 + xarray + netCDF4 + matplotlib
-$ python --version            # confirm: Python 3.10.x
+$ module load conda                              # makes `conda` available
+$ conda create -n claude_test python=3.12 -y     # one-time
+$ conda activate claude_test
+$ python --version                               # confirm: Python 3.12.x
 ```
+
+In every new shell session you'll need:
+
+```bash
+$ module load conda
+$ conda activate claude_test
+```
+
+(Add those two lines to `~/.bashrc` if you don't want to type them
+every time.)
 
 ### 0.2 · Clone the workshop repo
 
@@ -33,7 +45,7 @@ $ python --version            # confirm: Python 3.10.x
 $ cd ~                        # or wherever you keep code
 $ git clone https://github.com/AnonNick/claude-workshop.git
 $ cd claude-workshop
-$ pip install -e .
+$ pip install -e .            # pulls numpy, xarray, netCDF4, matplotlib
 $ pytest -m "not needs_data"  # quick sanity — 3 passed
 $ pytest                      # full run — 10 passed, 2 failed (intentional)
 ```
