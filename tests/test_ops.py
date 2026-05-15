@@ -39,26 +39,31 @@ def test_to_pressure_methods_agree_in_stratosphere(waccmx_path):
 
 
 @pytest.mark.needs_data
-def test_to_height_thermosphere_edens(waccmx_path):
-    """Electron density at 300 km altitude should be order 1e5 m^-3 in the monthly mean.
+def test_to_height_thermosphere_telec(waccmx_path):
+    """Electron temperature at 300 km altitude should be order 1000–3000 K.
 
-    From the model itself: monthly-mean EDens around the F-region peak
-    (200–300 km) averages ~10^5 electrons/m^3. Below the mesopause (~80 km)
-    it falls to essentially zero (~10^-15). If ``to_height`` returns a
-    value many orders of magnitude away from 10^5 at 300 km altitude,
-    something is wrong with the altitude-to-field pairing inside the
-    interpolation helper.
+    Below ~150 km, electrons thermalise with the neutral gas, so TElec ≈ T
+    (a few hundred K). Above ~200 km, solar photoelectrons heat the plasma
+    and TElec rises into the thousands of kelvin. The monthly global mean
+    of TElec at 300 km in this WACCM-X run is around 1600 K.
+
+    If ``to_height`` returns ~280 K at 300 km, the field is being paired
+    with surface altitudes instead — the bug lives in the interpolation
+    helper's handling of a descending source coordinate (Z3 runs from
+    ~445 km at the model top down to a few hundred metres at the surface).
     """
-    ds = open_waccmx(waccmx_path, variables=("EDens", "Z3"))
+    ds = open_waccmx(waccmx_path, variables=("TElec", "Z3"))
     altitudes = np.array([300_000.0])  # metres
-    ne = to_height(ds, "EDens", altitudes)
+    te = to_height(ds, "TElec", altitudes)
 
-    g = float(ne.mean().values)
+    g = float(te.mean().values)
 
-    assert 1e4 < g < 1e6, (
-        f"to_height returned EDens={g:.3e} m^-3 at 300 km altitude. "
-        f"Expected ~10^5. The values are paired with the wrong altitudes — "
-        "look at how the interpolation helper handles a descending source axis."
+    assert 1000.0 < g < 3000.0, (
+        f"to_height returned TElec={g:.1f} K at 300 km altitude. "
+        "Expected something in the 1000–3000 K range. Got a value that "
+        "looks like a neutral-atmosphere temperature, which means the "
+        "field has been paired with the wrong altitudes. The bug is in "
+        "the interpolation helper, not in to_height itself."
     )
 
 
@@ -70,11 +75,11 @@ def test_to_height_loglinear_method_works(waccmx_path):
     one of the interp implementations handles descending source axes
     correctly, the other does not.
     """
-    ds = open_waccmx(waccmx_path, variables=("EDens", "Z3"))
+    ds = open_waccmx(waccmx_path, variables=("TElec", "Z3"))
     altitudes = np.array([300_000.0])
-    ne = to_height(ds, "EDens", altitudes, method="loglinear")
-    g = float(ne.mean().values)
-    assert 1e4 < g < 1e6
+    te = to_height(ds, "TElec", altitudes, method="loglinear")
+    g = float(te.mean().values)
+    assert 1000.0 < g < 3000.0
 
 
 @pytest.mark.needs_data

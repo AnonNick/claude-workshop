@@ -34,4 +34,4 @@ Two tests are expected to fail on a fresh clone. They are the workshop
 exercises. Don't fix them before the workshop.
 
 - `tests/test_io.py::test_lat_orientation` — warm-up exercise.
-- `tests/test_ops.py::test_to_height_thermosphere_edens` — main exercise.
+- `tests/test_ops.py::test_to_height_thermosphere_telec` — main exercise.
