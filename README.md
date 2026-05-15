@@ -18,10 +18,15 @@ pip install -e .[dev]
 
 (`uv sync` works too if you have `uv` installed.)
 
-**Running on Derecho or Casper?** See [docs/SETUP-DERECHO.md](docs/SETUP-DERECHO.md)
-— there are two NCAR-specific gotchas (Node `npx -y` bug, libstdc++
-mismatch) that you'll hit while installing Claude Code's GitNexus MCP
-server. The doc walks through both with copy-pasteable commands.
+**For the workshop itself** — every command, in order, end-to-end:
+see [docs/COMMANDS.md](docs/COMMANDS.md).
+
+**Running on Derecho or Casper?** Read
+[docs/SETUP-DERECHO.md](docs/SETUP-DERECHO.md) — there are two
+NCAR-specific gotchas (Node `npx -y` bug, libstdc++ mismatch) that
+you'll hit while installing the GitNexus MCP server. `COMMANDS.md`
+above already bakes these in; this doc is the standalone reference
+for when something breaks.
 
 ## The data
 
