@@ -14,10 +14,11 @@ Three command flavours appear here:
 
 ---
 
-## Phase 0 · One-time setup (do this **before** the workshop) · *slides W03, W04*
+## Phase 0 · One-time setup (we'll do this together at the start) · *slides W03, W04*
 
-Skip the whole phase if `claude --version` and `which gitnexus` already
-both print something on this host.
+If you already ran this on the same Derecho account before — i.e.
+`claude --version` and `which gitnexus` both print something — you can
+skip ahead to Phase 1.
 
 ### 0.1 · Get on Derecho with a fresh conda env
 
