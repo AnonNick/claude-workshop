@@ -14,7 +14,7 @@ Three command flavours appear here:
 
 ---
 
-## Phase 0 · One-time setup (do this **before** the workshop)
+## Phase 0 · One-time setup (do this **before** the workshop) · *slides W03, W04*
 
 Skip the whole phase if `claude --version` and `which gitnexus` already
 both print something on this host.
@@ -126,9 +126,32 @@ paths.
 
 ---
 
-## Phase 1 · Workshop · Warm-up (Exercise 0)
+## Phase 1 · Workshop · Warm-up (Exercise 0) · *slides W05, W05a, W06*
 
-### 1.1 · Land in the repo and start Claude
+### 1.1 · The four-part prompt · *slide W05a*
+
+Before you type anything into Claude, get used to the shape of a good
+prompt. Every non-trivial request has four parts:
+
+| Part | What it is | Example |
+|---|---|---|
+| **GOAL** | what outcome you want | "Fix the failing T_elec test." |
+| **FILES** | where to look | `@src/wxpost/interp/linear.py` |
+| **CONSTRAINTS** | what not to change | "Keep the public API. No new deps." |
+| **VERIFICATION** | how we'll know it worked | "pytest must pass. Add a regression test." |
+
+Stitched into one prompt:
+
+```
+> Fix test_to_height_thermosphere_telec. The bug is in
+  @src/wxpost/interp/linear.py. Don't change the public API; no new
+  dependencies. Make pytest pass and add a regression test.
+```
+
+Every prompt you type later in the workshop should hit at least three
+of the four.
+
+### 1.2 · Land in the repo and start Claude · *slide W05*
 
 ```bash
 $ cd ~/claude-workshop
@@ -137,7 +160,7 @@ $ claude
 
 You should see the Claude banner, the cwd, and a `>` prompt.
 
-### 1.2 · Ask Claude to orient itself
+### 1.3 · Ask Claude to orient itself · *slide W06*
 
 ```
 > what does this repo do?
@@ -159,7 +182,7 @@ answer should mention `src/wxpost/coords/`.
 
 ---
 
-## Phase 2 · Fundamentals — the slash menu
+## Phase 2 · Fundamentals — the slash menu · *slides W08, W09, W10, W11, W11b, W11c*
 
 Inside Claude (`$ claude` if you exited):
 
@@ -180,7 +203,7 @@ Inside Claude (`$ claude` if you exited):
 | `> /hooks` | configure pre/post tool hooks (power-user) |
 | `> /statusline` | configure the line printed above your prompt each turn |
 
-### Pick one to actually customise — `/statusline`
+### Pick one to actually customise — `/statusline` · *slide W11c*
 
 ```
 > /statusline write a bash script (type "command") that reads the Claude
@@ -195,9 +218,9 @@ turn, the new line appears above your prompt.
 
 ---
 
-## Phase 3 · Memory (Exercise 1)
+## Phase 3 · Memory (Exercise 1) · *slides W08–W13 (memory section)*
 
-### 3.1 · Bootstrap CLAUDE.md for this repo
+### 3.1 · Bootstrap CLAUDE.md for this repo · *slide W09 (project memory)*
 
 ```
 > /init
@@ -213,7 +236,7 @@ $ git diff CLAUDE.md           # see what /init proposed
 $ git checkout CLAUDE.md       # roll back if you want the original
 ```
 
-### 3.2 · Quick-add memories with `#`
+### 3.2 · Quick-add memories with `#` · *slide W11 (quick-add)*
 
 Inside Claude, type `#` as the first character of your message. Claude
 treats the rest as a memory candidate and asks where to save it.
@@ -243,21 +266,22 @@ $ cat ./CLAUDE.md
 
 ---
 
-## Phase 4 · MCP + GitNexus (Exercise 2)
+## Phase 4 · MCP + GitNexus (Exercise 2) · *slides W14–W22*
 
-### 4.1 · Index this repo with GitNexus
+### 4.1 · Index this repo with GitNexus · *slides W18, W20*
 
 ```bash
 $ cd ~/claude-workshop
 $ LD_PRELOAD=/glade/u/apps/opt/miniforge/envs/npl-2026a/lib/libstdc++.so.6 \
-    gitnexus analyze
+    /glade/u/apps/opt/miniforge/envs/npl-2026a/bin/node \
+    $HOME/.npm-global/bin/gitnexus analyze
 ```
 
 You should see "Walked N files / Parsed N symbols / Wrote .gitnexus/"
 followed by `.claude/skills/` being installed and `CLAUDE.md` being
 updated. The index lives in `./.gitnexus/`.
 
-### 4.2 · Register the GitNexus MCP server
+### 4.2 · Register the GitNexus MCP server · *slides W17 (scopes), W20*
 
 ```bash
 $ claude mcp remove gitnexus -s user 2>/dev/null    # idempotent
@@ -281,7 +305,7 @@ $ claude
 > /mcp                         # gitnexus should appear with ~7 tools
 ```
 
-### 4.4 · Try a GitNexus-powered question
+### 4.4 · Try a GitNexus-powered question · *slide W21 (Ex 2)*
 
 ```
 > What depends on the function `interp_1d` in src/wxpost/interp/linear.py?
@@ -300,9 +324,9 @@ extension if you haven't).
 
 ---
 
-## Phase 5 · Skills + custom slash commands (Exercise 3)
+## Phase 5 · Skills, slash commands, permission modes · *slides W23–W27a*
 
-### 5.1 · Write a project skill
+### 5.1 · Write a project skill · *slides W24, W25, W26 (Ex 3)*
 
 ```
 > Write a skill for code review of changes to src/wxpost/. It should:
@@ -321,7 +345,7 @@ $ cat .claude/skills/review-wxpost/SKILL.md
 $ git status                   # the new skill should appear here
 ```
 
-### 5.2 · Write a custom slash command
+### 5.2 · Write a custom slash command · *slide W27*
 
 ```bash
 $ mkdir -p .claude/commands
@@ -348,11 +372,54 @@ $ claude
 > /pr-summary
 ```
 
+### 5.3 · Permission modes — the `Shift+Tab` cycle · *slide W26b*
+
+How aggressive Claude is allowed to be. Cycle through the four modes
+by tapping `Shift+Tab` from inside Claude:
+
+| # of taps | Mode | Edits | Bash | Use when |
+|---|---|---|---|---|
+| 0 | **NORMAL** (default) | ASK | ASK | Learning the agent, sensitive paths. |
+| 1 | **ACCEPT EDITS ON** | AUTO | ASK | You trust the diffs. Still gate command exec. |
+| 2 | **PLAN** | BLOCKED | BLOCKED | Large refactors. Unfamiliar code. Read-only thinking. |
+| 3 | **AUTO MODE ON** | AUTO | AUTO | Sandboxed env / scripted CI only. Not daily use. |
+
+Cycling wraps — a fourth tap returns you to NORMAL. The current mode
+shows in the status bar above your prompt.
+
+### 5.4 · Plan mode and the safety net · *slide W27a*
+
+Before you turn Claude loose on the bug exercise, get familiar with
+plan mode (Shift+Tab × 2). Try this:
+
+```bash
+$ claude
+```
+
+Tap `Shift+Tab` twice. You should see something like
+`> [plan mode]` in the status line. Then:
+
+```
+> pytest fails on tests/test_io.py::test_lat_orientation. Read the
+  test and the code it tests. Tell me what the bug probably is, but
+  do NOT change any files.
+```
+
+Claude can read, grep, run searches, and reason — but **cannot** edit
+files or run commands until you approve the plan. Tap `Shift+Tab`
+twice more to leave plan mode when you're done thinking.
+
+Plus the three layers of undo:
+
+- **Diff approval** — every edit shown as +/−. Accept, edit, or reject one-by-one.
+- **`/undo`** — step back one turn; files revert.
+- **`git`, always** — commit before a big task. Claude's work becomes a diff you can squash or drop.
+
 ---
 
-## Phase 6 · Main exercise — fix the bugs
+## Phase 6 · Main exercise — fix the bugs · *slides W28, W29, W30*
 
-### 6.1 · See the failures
+### 6.1 · See the failures · *slide W29 (both bug cards)*
 
 ```bash
 $ cd ~/claude-workshop
@@ -363,7 +430,7 @@ Two failures:
 - `tests/test_io.py::test_lat_orientation` — the warm-up bug
 - `tests/test_ops.py::test_to_height_thermosphere_telec` — the main bug
 
-### 6.2 · See the warm-up bug visually
+### 6.2 · See the warm-up bug visually · *slide W29 card 1*
 
 ```bash
 $ python examples/plot_surface_temperature.py
@@ -380,11 +447,15 @@ It prints something like:
 The image is at `examples/surface_temperature.png` — open it in VS Code
 or `eog`/`feh` if you have an X session.
 
-### 6.3 · Fix Bug 1 with Claude
+### 6.3 · Fix Bug 1 with Claude · *slide W30 (workflow)*
 
 ```bash
 $ claude
-> Shift+Tab                    # enter plan mode
+```
+
+Tap `Shift+Tab` × 2 to enter plan mode. Then:
+
+```
 > The test tests/test_io.py::test_lat_orientation fails. Plan how to
   fix it; do not touch files yet. The examples plot also shows the
   hemispheres flipped — both symptoms are the same bug.
@@ -399,11 +470,15 @@ $ pytest tests/test_io.py
 $ python examples/plot_surface_temperature.py    # plot should look right now
 ```
 
-### 6.4 · Fix Bug 2 with the GitNexus workflow
+### 6.4 · Fix Bug 2 with the GitNexus workflow · *slide W30 (workflow)*
 
 ```bash
 $ claude
-> Shift+Tab                    # plan mode
+```
+
+Tap `Shift+Tab` × 2 to enter plan mode. Then:
+
+```
 > tests/test_ops.py::test_to_height_thermosphere_telec returns 280 K
   when it expects ~1600 K. to_pressure works fine; only to_height
   fails. Use GitNexus to find what's shared between the two ops and
@@ -443,7 +518,7 @@ $ git log --oneline -5
 
 ---
 
-## Phase 7 · Wrap-up reference
+## Phase 7 · Wrap-up reference · *slide W31 (cheat sheet)*
 
 ### Run anywhere
 
