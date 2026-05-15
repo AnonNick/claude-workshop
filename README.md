@@ -10,13 +10,18 @@ and a few standard reductions on top of that.
 ## Install
 
 ```bash
-git clone https://github.com/<org>/claude-workshop.git
+git clone https://github.com/AnonNick/claude-workshop.git
 cd claude-workshop
 python -m venv .venv && source .venv/bin/activate
 pip install -e .[dev]
 ```
 
 (`uv sync` works too if you have `uv` installed.)
+
+**Running on Derecho or Casper?** See [docs/SETUP-DERECHO.md](docs/SETUP-DERECHO.md)
+— there are two NCAR-specific gotchas (Node `npx -y` bug, libstdc++
+mismatch) that you'll hit while installing Claude Code's GitNexus MCP
+server. The doc walks through both with copy-pasteable commands.
 
 ## The data
 
