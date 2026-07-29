@@ -17,16 +17,18 @@ Three command flavours appear here:
 ## Phase 0 · One-time setup (we'll do this together at the start) · *slides W03, W04*
 
 If you already ran this on the same Derecho account before — i.e.
-`claude --version` and `which gitnexus` both print something — you can
-skip ahead to Phase 1.
+`claude --version` prints a version and `conda activate wxpost` works —
+you can skip ahead to Phase 1.
 
 ### 0.1 · Get on Derecho with a fresh conda env
+
+`wxpost` gets its **own** environment — never the base interpreter.
 
 ```bash
 $ ssh derecho.hpc.ucar.edu
 $ module load conda                              # makes `conda` available
-$ conda create -n claude_test python=3.12 -y     # one-time
-$ conda activate claude_test
+$ conda create -n wxpost python=3.12 -y          # one-time
+$ conda activate wxpost
 $ python --version                               # confirm: Python 3.12.x
 ```
 
@@ -34,11 +36,17 @@ In every new shell session you'll need:
 
 ```bash
 $ module load conda
-$ conda activate claude_test
+$ conda activate wxpost
 ```
 
 (Add those two lines to `~/.bashrc` if you don't want to type them
 every time.)
+
+> **No `conda` module?** You're not on an NCAR system. Any isolated
+> Python 3.10+ interpreter works instead — e.g.
+> `python3 -m venv .venv && source .venv/bin/activate` (or `uv venv`)
+> from the repo root. See the ["Anywhere else"](../README.md#anywhere-else)
+> section of the README.
 
 ### 0.2 · Clone the workshop repo
 
@@ -236,85 +244,26 @@ $ cat ./CLAUDE.md
 
 ---
 
-## Phase 4 · MCP + GitNexus (Exercise 2) · *slides W14–W22*
+## Phase 4 · Explore the codebase with Claude (Exercise 2) · *slides W14–W22*
 
-### 4.1 · Install Node + GitNexus globally · *slides W17, W18*
-
-Derecho ships Node already, but the default install path won't work
-because `npx -y` re-resolves on each launch and triggers an npm bug.
-Install once, globally:
-
-```bash
-$ mkdir -p ~/.npm-global
-$ npm config set prefix ~/.npm-global
-$ echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
-$ source ~/.bashrc
-
-$ npm install -g gitnexus
-$ which gitnexus               # → ~/.npm-global/bin/gitnexus
-$ gitnexus --version           # → 1.5.3 or higher
-```
-
-### 4.2 · Verify the libstdc++ override · *slide W20*
-
-GitNexus's native add-on needs `GLIBCXX_3.4.32`, which Derecho's `node`
-binary can't find on its own. We point at the system miniforge env:
-
-```bash
-$ strings /glade/u/apps/opt/miniforge/envs/npl-2026a/lib/libstdc++.so.6 \
-    | grep -c GLIBCXX_3.4.32
-2
-```
-
-If you get `0`, see [SETUP-DERECHO.md](SETUP-DERECHO.md) for fallback
-paths.
-
-### 4.3 · Index this repo with GitNexus · *slides W18, W20*
+Two questions that make Claude work across the whole package rather than
+a single file. Run them from the repo root:
 
 ```bash
 $ cd ~/claude-workshop
-$ LD_PRELOAD=/glade/u/apps/opt/miniforge/envs/npl-2026a/lib/libstdc++.so.6 \
-    /glade/u/apps/opt/miniforge/envs/npl-2026a/bin/node \
-    $HOME/.npm-global/bin/gitnexus analyze
-```
-
-You should see "Walked N files / Parsed N symbols / Wrote .gitnexus/"
-followed by `.claude/skills/` being installed and `CLAUDE.md` being
-updated. The index lives in `./.gitnexus/`.
-
-### 4.4 · Register the GitNexus MCP server · *slides W17 (scopes), W20*
-
-```bash
-$ claude mcp remove gitnexus -s user 2>/dev/null    # idempotent
-$ claude mcp add gitnexus -s user \
-    -e LD_PRELOAD=/glade/u/apps/opt/miniforge/envs/npl-2026a/lib/libstdc++.so.6 \
-    -- ~/.npm-global/bin/gitnexus mcp
-
-$ claude mcp list
-```
-
-Expect `gitnexus: … - ✓ Connected`. If you see `✗ Failed to connect`,
-re-check paths in steps 4.1 and 4.2.
-
-### 4.5 · Restart Claude so it picks up the new MCP
-
-MCP tools are loaded at session startup, not live. Always restart after
-adding a server.
-
-```bash
 $ claude
-> /mcp                         # gitnexus should appear with ~7 tools
 ```
 
-### 4.6 · Try a GitNexus-powered question · *slide W21 (Ex 2)*
+### 4.1 · Trace a symbol's dependents · *slide W21 (Ex 2)*
 
 ```
 > What depends on the function `interp_1d` in src/wxpost/interp/linear.py?
 ```
 
-Watch the tool-call list — you should see `mcp__gitnexus__impact` (or
-`mcp__gitnexus__query`) rather than plain `Bash grep`. That's the
-signal the MCP is working.
+Watch the tool-call list — Claude should search the tree and then open
+the callers it finds, not just answer from the one file you named.
+
+### 4.2 · Ask for an architecture diagram
 
 ```
 > Draw me an architecture diagram of this package as a Mermaid graph.
@@ -471,7 +420,7 @@ $ pytest tests/test_io.py
 $ python examples/plot_surface_temperature.py    # plot should look right now
 ```
 
-### 6.4 · Fix Bug 2 with the GitNexus workflow · *slide W30 (workflow)*
+### 6.4 · Fix Bug 2 with plan mode · *slide W30 (workflow)*
 
 ```bash
 $ claude
@@ -482,8 +431,8 @@ Tap `Shift+Tab` × 2 to enter plan mode. Then:
 ```
 > tests/test_ops.py::test_to_height_thermosphere_telec returns 280 K
   when it expects ~1600 K. to_pressure works fine; only to_height
-  fails. Use GitNexus to find what's shared between the two ops and
-  the most likely location of the bug. Don't change any files yet.
+  fails. Find what's shared between the two ops and the most likely
+  location of the bug. Don't change any files yet.
 ```
 
 When Claude proposes a plan that touches `src/wxpost/interp/linear.py`,
@@ -525,7 +474,6 @@ $ git log --oneline -5
 
 ```bash
 $ claude --version
-$ claude mcp list
 $ pytest                       # confirms everything still works
 $ python examples/plot_surface_temperature.py
 ```
@@ -551,4 +499,3 @@ $ python examples/plot_surface_temperature.py
 | `./.claude/commands/*.md` | custom slash commands |
 | `./.mcp.json` | project-scope MCP server registrations |
 | `~/.claude/settings.json` | user-scope MCP servers + status line script |
-| `./.gitnexus/` | GitNexus knowledge graph for this repo |

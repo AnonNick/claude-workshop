@@ -4,6 +4,9 @@ Tiny Python package (`wxpost`) for WACCM-X post-processing.
 
 ## Build / test
 
+Install into a **dedicated** Python 3.10+ environment — never a base or
+system interpreter (a named conda env on Derecho/Casper, a venv elsewhere).
+
 ```bash
 pip install -e .[dev]
 pytest                    # all tests
