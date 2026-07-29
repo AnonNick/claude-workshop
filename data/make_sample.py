@@ -29,6 +29,10 @@ Usage
 
 Only needs numpy and netCDF4. You should not have to run this — the
 generated file is committed.
+
+Every field is deterministic, so a regenerated file holds bit-identical
+data. The file itself won't have the same checksum: HDF5 stamps its own
+metadata on write.
 """
 
 from __future__ import annotations
@@ -167,7 +171,10 @@ def main() -> None:
             v = nc.createVariable(name, "f4", dims, zlib=True, complevel=6)
             for k, val in attrs.items():
                 setattr(v, k, val)
-            v[...] = data
+            # np.broadcast_to returns a read-only, non-contiguous view; make it
+            # a real contiguous array so netCDF4 can write it without poking
+            # at the view's shape (deprecated in numpy 2.5).
+            v[...] = np.ascontiguousarray(data, dtype="f4")
             return v
 
         t = nc.createVariable("time", "f8", ("time",))
