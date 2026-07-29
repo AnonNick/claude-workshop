@@ -1,94 +1,87 @@
 # claude-workshop
 
 A tiny Python package — `wxpost` — for post-processing WACCM-X CAM history
-files. Used as the demo repository for the HAO Claude Code workshop.
+files. This is the demo repository for the HAO Claude workshop.
 
 What it does, in one line: load a WACCM-X NetCDF, interpolate fields from
-the native hybrid sigma-pressure grid onto fixed pressure or altitude levels,
-and a few standard reductions on top of that.
+the native hybrid sigma-pressure grid onto fixed pressure or altitude
+levels, and a few standard reductions on top of that.
 
-## Install
+It also ships two deliberate bugs. Finding and fixing them is the workshop.
 
-`wxpost` needs its **own** fresh Python environment (3.10+). Don't install it
-into a base or system interpreter — pick one of the two paths below.
+## Setup
+
+You need Python 3.10+ and about two minutes. `wxpost` goes into its **own**
+environment — never a base or system interpreter.
 
 ```bash
 git clone https://github.com/AnonNick/claude-workshop.git
 cd claude-workshop
-```
 
-### On Derecho / Casper
-
-Any NCAR HPC system with the `conda` module:
-
-```bash
-module load conda
-conda create -n wxpost python=3.12 -y
-conda activate wxpost
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e .[dev]
 ```
 
-Every new shell needs `module load conda && conda activate wxpost` again —
-add both lines to `~/.bashrc` if you'd rather not type them each time.
+Prefer `uv` or conda? `uv venv && source .venv/bin/activate` works, so does
+`conda create -n wxpost python=3.12 -y && conda activate wxpost`. Any
+isolated 3.10+ interpreter is fine. All deps (numpy, xarray, netCDF4,
+matplotlib) come in via pip.
 
-### Anywhere else
-
-No `conda` module needed; any isolated 3.10+ interpreter works. Pick one:
-
-```bash
-python3 -m venv .venv && source .venv/bin/activate   # Option A — stdlib venv
-uv venv && source .venv/bin/activate                 # Option B — uv
-# Option C — a personal conda/miniforge install, e.g.
-#   conda create -n wxpost python=3.12 -y && conda activate wxpost
-```
-
-Then:
+Then run the tests:
 
 ```bash
-pip install -e .[dev]
+pytest
 ```
 
-All runtime deps (numpy, xarray, netCDF4, matplotlib) come in via pip, so a
-plain venv is enough — conda is only required on NCAR systems.
+You should see:
 
-**For the workshop itself** — every command, in order, end-to-end:
-see [docs/COMMANDS.md](docs/COMMANDS.md).
+```
+2 failed, 10 passed
+```
 
-**Running on Derecho or Casper?** See
-[docs/SETUP-DERECHO.md](docs/SETUP-DERECHO.md) for conda-env and Claude Code
-setup on NCAR systems.
+**The two failures are intentional.** They are the workshop exercises —
+please don't fix them before you show up:
+
+| Test | Role |
+|---|---|
+| `tests/test_io.py::test_lat_orientation` | the warm-up bug |
+| `tests/test_ops.py::test_to_height_thermosphere_telec` | the main bug — the interpolation one |
+
+If you see a different count, something is wrong with your environment.
+Flag it and someone will help.
 
 ## The data
 
-Tests reference one file on Derecho `campaign`:
+`data/sample.nc` (about 550 KiB) ships with the repo, so everything runs on
+your laptop with no HPC access and nothing to download.
 
-```
-/glade/campaign/hao/itmodel/joemci/archive/f.e22.FXSD.f19_f19_mg17.001/
-    atm/hist/2020/f.e22.FXSD.f19_f19_mg17.001.cam.h0.2020-01.nc
-```
+It is **synthetic**. It has the shape, coordinates, variables and attributes
+of a real WACCM-X CAM `h0` monthly-mean file — 96 levels from 4e-10 hPa down
+to the surface, 49 latitudes, 24 longitudes, one January 2020 time step,
+with `T`, `U`, `V`, `Z3`, `TElec`, `TIon`, `PS` and the hybrid-sigma
+coefficients. Its fields follow analytic profiles chosen to be physically
+plausible, but no number in it came out of a model run. Don't put it in a
+paper.
 
-This is a WACCM-X FXSD monthly-mean h0 file for January 2020, on the f19
-grid (~1.9°×2.5°), 145 vertical levels. About 1.8 GB. We only read a few
-variables out of it (`T`, `U`, `V`, `Z3`, `PS`, `TElec`, `TIon`, plus the
-hybrid-sigma coefficients `hyam`, `hybm`, `P0`).
+`data/make_sample.py` generates it and documents every profile. You should
+never need to run it — the file is committed.
 
-Tests that touch this file are marked `needs_data`. Run only the ones that
-don't need the file:
-
-```bash
-pytest -m "not needs_data"
-```
-
-## Run the tests
+## See the warm-up bug
 
 ```bash
-pytest                    # all tests
-pytest -m needs_data      # only the ones that read the WACCM-X file
+python examples/plot_surface_temperature.py
 ```
 
-You should see **two failures** out of the box. They are intentional — they
-are the bugs you'll fix during the workshop. Don't fix them before showing
-up.
+January is northern winter, so 60°N should be far colder than 60°S. Before
+the fix, the script reports the opposite and says so:
+
+```
+  60°N (label):  -0.3°C    expected ~ -12°C  (NH winter)
+  60°S (label): -12.3°C    expected ~   0°C  (SH summer)
+  ⚠ The plot shows 60°N WARMER than 60°S in January. That's impossible.
+```
+
+It writes `examples/surface_temperature.png` (not committed).
 
 ## Package layout
 
@@ -106,6 +99,11 @@ src/wxpost/
     ├── to_height.py     field on model levels → field on fixed altitude
     └── zonal_mean.py    mean over longitude
 ```
+
+## During the workshop
+
+Part 2 walks through Claude Code on this repo. Every command, in order:
+[docs/COMMANDS.md](docs/COMMANDS.md) — that's the handout.
 
 ## License
 

@@ -13,9 +13,13 @@ dist/
 venv/
 .env
 
-# Data (the workshop file lives on /glade, never check in NetCDF)
+# Data — data/sample.nc IS committed (regenerate: python data/make_sample.py).
+# Any other NetCDF is someone's own output; keep it out of the repo.
 *.nc
-data/
+!data/sample.nc
+
+# Generated figures
+examples/*.png
 
 # Editor
 .vscode/

@@ -7,13 +7,11 @@ start. Fixing it is the warm-up exercise.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 import xarray as xr
 
 from wxpost.io import open_waccmx, pressure_on_levels
 
 
-@pytest.mark.needs_data
 def test_open_keeps_requested_variables(waccmx_path):
     ds = open_waccmx(waccmx_path, variables=("T", "TElec"))
     assert "T" in ds
@@ -23,7 +21,6 @@ def test_open_keeps_requested_variables(waccmx_path):
         assert coef in ds
 
 
-@pytest.mark.needs_data
 def test_lev_in_pascals(waccmx_path):
     """After open_waccmx, ``lev`` should be in Pa, not hPa."""
     ds = open_waccmx(waccmx_path, variables=("T",))
@@ -32,7 +29,6 @@ def test_lev_in_pascals(waccmx_path):
     assert ds["lev"].values.max() > 5e4
 
 
-@pytest.mark.needs_data
 def test_lat_orientation(waccmx_path):
     """The value at a given latitude should match what's actually in the file.
 
@@ -60,7 +56,6 @@ def test_lat_orientation(waccmx_path):
     )
 
 
-@pytest.mark.needs_data
 def test_pressure_on_levels_has_right_shape(waccmx_path):
     ds = open_waccmx(waccmx_path, variables=("T",))
     p = pressure_on_levels(ds)

@@ -1,18 +1,16 @@
 """Tests for the user-facing operations.
 
-``test_to_height_thermosphere_edens`` is **expected to fail** at workshop
+``test_to_height_thermosphere_telec`` is **expected to fail** at workshop
 start. Fixing it is the main exercise. The other tests should pass.
 """
 
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from wxpost import open_waccmx, to_height, to_pressure, zonal_mean
 
 
-@pytest.mark.needs_data
 def test_to_pressure_basic(waccmx_path):
     """T on three standard pressure levels has the right shape and physics."""
     ds = open_waccmx(waccmx_path, variables=("T",))
@@ -26,7 +24,6 @@ def test_to_pressure_basic(waccmx_path):
     assert T.max().values < 350.0
 
 
-@pytest.mark.needs_data
 def test_to_pressure_methods_agree_in_stratosphere(waccmx_path):
     """Linear and loglinear give the same answer when the source coordinate
     is well-resolved — which it is for WACCM-X (~145 levels)."""
@@ -38,19 +35,18 @@ def test_to_pressure_methods_agree_in_stratosphere(waccmx_path):
     assert np.allclose(lin.values, log.values, atol=2.0, rtol=0.01)
 
 
-@pytest.mark.needs_data
 def test_to_height_thermosphere_telec(waccmx_path):
     """Electron temperature at 300 km altitude should be order 1000–3000 K.
 
     Below ~150 km, electrons thermalise with the neutral gas, so TElec ≈ T
     (a few hundred K). Above ~200 km, solar photoelectrons heat the plasma
     and TElec rises into the thousands of kelvin. The monthly global mean
-    of TElec at 300 km in this WACCM-X run is around 1600 K.
+    of TElec at 300 km in this run is around 1700 K.
 
-    If ``to_height`` returns ~280 K at 300 km, the field is being paired
+    If ``to_height`` returns ~255 K at 300 km, the field is being paired
     with surface altitudes instead — the bug lives in the interpolation
     helper's handling of a descending source coordinate (Z3 runs from
-    ~445 km at the model top down to a few hundred metres at the surface).
+    ~460 km at the model top down to a few hundred metres at the surface).
     """
     ds = open_waccmx(waccmx_path, variables=("TElec", "Z3"))
     altitudes = np.array([300_000.0])  # metres
@@ -67,7 +63,6 @@ def test_to_height_thermosphere_telec(waccmx_path):
     )
 
 
-@pytest.mark.needs_data
 def test_to_height_loglinear_method_works(waccmx_path):
     """If the user passes method='loglinear', to_height returns sensible values.
 
@@ -82,7 +77,6 @@ def test_to_height_loglinear_method_works(waccmx_path):
     assert 1000.0 < g < 3000.0
 
 
-@pytest.mark.needs_data
 def test_zonal_mean_basic(waccmx_path):
     ds = open_waccmx(waccmx_path, variables=("T",))
     zm = zonal_mean(ds, "T")

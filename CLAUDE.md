@@ -5,12 +5,11 @@ Tiny Python package (`wxpost`) for WACCM-X post-processing.
 ## Build / test
 
 Install into a **dedicated** Python 3.10+ environment — never a base or
-system interpreter (a named conda env on Derecho/Casper, a venv elsewhere).
+system interpreter (a venv, or a named conda env on Derecho/Casper).
 
 ```bash
 pip install -e .[dev]
-pytest                    # all tests
-pytest -m "not needs_data"  # skip ones that read /glade
+pytest
 ```
 
 ## Conventions
@@ -22,14 +21,11 @@ pytest -m "not needs_data"  # skip ones that read /glade
 
 ## Data
 
-The workshop file (read-only):
-
-```
-/glade/campaign/hao/itmodel/joemci/archive/f.e22.FXSD.f19_f19_mg17.001/atm/hist/
-  2020/f.e22.FXSD.f19_f19_mg17.001.cam.h0.2020-01.nc
-```
-
-Don't copy it into the repo. Open it from there.
+`data/sample.nc` ships with the repo — open it from there. It is
+**synthetic**: shaped like a real WACCM-X CAM `h0` monthly mean (96 levels,
+49 lats, 24 lons, one January 2020 step) but generated from analytic
+profiles by `data/make_sample.py`. Plausible, not real. Never cite a number
+from it.
 
 ## Known-failing tests
 

@@ -25,6 +25,8 @@ packages = ["src/wxpost"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
-markers = [
-    "needs_data: test requires the WACCM-X file on /glade",
+filterwarnings = [
+    # Benign ABI warning from cftime/netCDF4 built against an older numpy.
+    # Not ours, and it only distracts from the two intentional failures.
+    "ignore:numpy.ndarray size changed:RuntimeWarning",
 ]

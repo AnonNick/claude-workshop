@@ -1,4 +1,4 @@
-"""Plot January surface temperature from the workshop WACCM-X file.
+"""Plot January surface temperature from ``data/sample.nc``.
 
 Run this *before* fixing the lat-orientation bug to see what the bug
 looks like. January is northern winter, so the Arctic should be far
@@ -14,7 +14,8 @@ Usage
 
     python examples/plot_surface_temperature.py
 
-Writes ``surface_temperature.png`` next to the script.
+Writes ``surface_temperature.png`` next to the script. That PNG is
+generated output — it is not committed.
 """
 
 from __future__ import annotations
@@ -23,17 +24,12 @@ from pathlib import Path
 
 import matplotlib
 
-matplotlib.use("Agg")  # no display on Derecho login nodes
+matplotlib.use("Agg")  # write a PNG rather than opening a window
 import matplotlib.pyplot as plt
-import numpy as np
 
 from wxpost.io import open_waccmx
 
-WACCMX_FILE = (
-    "/glade/campaign/hao/itmodel/joemci/archive/"
-    "f.e22.FXSD.f19_f19_mg17.001/atm/hist/2020/"
-    "f.e22.FXSD.f19_f19_mg17.001.cam.h0.2020-01.nc"
-)
+WACCMX_FILE = Path(__file__).resolve().parent.parent / "data" / "sample.nc"
 
 
 def main() -> None:
@@ -101,8 +97,8 @@ def main() -> None:
     out = Path(__file__).with_name("surface_temperature.png")
     fig.savefig(out, dpi=120)
     print(f"wrote {out}")
-    print(f"  60°N (label):  {nh_T:+.1f}°C    expected ~ -10°C  (NH winter)")
-    print(f"  60°S (label):  {sh_T:+.1f}°C    expected ~  +2°C  (SH summer)")
+    print(f"  60°N (label):  {nh_T:+.1f}°C    expected ~ -12°C  (NH winter)")
+    print(f"  60°S (label):  {sh_T:+.1f}°C    expected ~   0°C  (SH summer)")
     if nh_T > sh_T:
         print(
             "  ⚠ The plot shows 60°N WARMER than 60°S in January. "

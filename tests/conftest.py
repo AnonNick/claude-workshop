@@ -6,16 +6,21 @@ from pathlib import Path
 
 import pytest
 
-WACCMX_FILE = Path(
-    "/glade/campaign/hao/itmodel/joemci/archive/"
-    "f.e22.FXSD.f19_f19_mg17.001/atm/hist/2020/"
-    "f.e22.FXSD.f19_f19_mg17.001.cam.h0.2020-01.nc"
-)
+REPO_ROOT = Path(__file__).resolve().parent.parent
+SAMPLE_FILE = REPO_ROOT / "data" / "sample.nc"
 
 
 @pytest.fixture(scope="session")
 def waccmx_path() -> Path:
-    """Path to the workshop WACCM-X file on /glade/campaign."""
-    if not WACCMX_FILE.exists():
-        pytest.skip(f"WACCM-X workshop file not accessible: {WACCMX_FILE}")
-    return WACCMX_FILE
+    """Path to the sample WACCM-X file that ships with the repo.
+
+    Synthetic, but shaped exactly like a real WACCM-X CAM ``h0`` monthly
+    mean. See ``data/make_sample.py``.
+    """
+    if not SAMPLE_FILE.exists():
+        pytest.fail(
+            f"sample data file missing: {SAMPLE_FILE}\n"
+            "It is committed to the repo — try `git checkout data/sample.nc`, "
+            "or regenerate it with `python data/make_sample.py`."
+        )
+    return SAMPLE_FILE
